@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // Sử dụng axios để gọi API
+import api from '../../config/axios';
 import styles from './blog.module.css';
 import Footer from '../../component/footer';
 import Tagbar from '../../component/tagbar';
@@ -12,9 +12,15 @@ const Blog = () => {
 
     useEffect(() => {
         // Gọi API để lấy dữ liệu
-        axios.get('https://dummyjson.com/posts')
+        // Gọi API để lấy dữ liệu
+        api.get('/posts')  // Sử dụng 'api' đã được cấu hình
             .then(response => {
-                setPosts(response.data.posts); // Lưu dữ liệu bài viết vào state
+                // Kiểm tra dữ liệu trả về
+                if (Array.isArray(response.data)) {
+                    setPosts(response.data); // Lưu dữ liệu bài viết vào state
+                } else {
+                    console.error("Dữ liệu không phải là mảng:", response.data);
+                }
                 setLoading(false); // Kết thúc trạng thái tải dữ liệu
             })
             .catch(error => {
@@ -46,7 +52,7 @@ const Blog = () => {
         <>
             <Header />
             <Tagbar />
-            <header className={`${styles.masthead}`} style={{ backgroundImage: "url('imagines/background/KoiFish.jpg')" }}>
+            <header className={`${styles.masthead}`} style={{ backgroundImage: "url('/imagines/background/KoiFish.jpg')" }}>
                 <div className="container position-relative px-4 px-lg-5">
                     <div className="row gx-4 gx-lg-5 justify-content-center">
                         <div className="col-md-10 col-lg-8 col-xl-7">
@@ -60,18 +66,18 @@ const Blog = () => {
             <div className={styles.container + " px-4 px-lg-5"}>
                 <div className="row gx-4 gx-lg-5 justify-content-center">
                     <div className="col-md-10 col-lg-8 col-xl-7">
-                        {posts.slice(0, visiblePosts).map((post) => (
+                        {posts.length > 0 && posts.slice(0, visiblePosts).map((post) => (
                             <div className={styles.postPreview} key={post.id}>
                                 <a href={`/post/${post.id}`}>
                                     <h2 className={styles.postTitle}>
                                         {post.title}
                                     </h2>
                                     <h3 className={styles.postSubtitle}>
-                                        {post.body.slice(0, 100)}...
+                                        {post.description.slice(0, 100)}...
                                     </h3>
                                 </a>
                                 <p className={styles.postMeta}>
-                                    Đăng bởi {post.userId} vào ngày {new Date(post.date).toLocaleDateString()}
+                                    Đăng bởi {post.staffid} vào ngày {new Date(post.date).toLocaleDateString()}
                                 </p>
                                 <hr className="my-4" />
                             </div>

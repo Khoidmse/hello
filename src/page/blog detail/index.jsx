@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; // Để lấy thông tin từ URL
-import styles from './styles.module.css';
+import { useParams } from 'react-router-dom';
+import styles from './detail.module.css';
 import Footer from '../../component/footer';
 import Header from '../../component/header';
 import Tagbar from '../../component/tagbar';
+import api from '../../config/axios';
 
 const BlogDetail = () => {
     const { postId } = useParams(); // Lấy ID bài viết từ URL
@@ -18,14 +19,21 @@ const BlogDetail = () => {
         // Hàm lấy chi tiết bài viết từ API dựa vào postId
         const loadPostContent = async (id) => {
             try {
-                const response = await fetch(`https://dummyjson.com/posts/${id}`);
-                const data = await response.json();
+                const response = await api.get(`/posts/${id}`); // Sử dụng 'api' đã cấu hình
+
+                // Kiểm tra nếu phản hồi không hợp lệ
+                if (response.status !== 200) {
+                    throw new Error('Bài viết không tồn tại.');
+                }
+
+                const data = response.data; // Lấy dữ liệu từ phản hồi
                 setPost(data); // Lưu nội dung bài viết vào state
             } catch (error) {
                 console.error('Lỗi khi tải nội dung bài viết:', error);
                 setError('Đã xảy ra lỗi khi tải nội dung bài viết.');
             }
         };
+
 
         // Gọi hàm để tải nội dung bài viết khi component được mount
         if (postId) {
@@ -58,7 +66,7 @@ const BlogDetail = () => {
                             <div className={`${styles.siteHeading}`}>
                                 <h1>{post.title}</h1>
                                 <span className={`${styles.meta}`}>
-                                    Đăng bởi {post.userId} vào ngày {new Date(post.date).toLocaleDateString()}
+                                    Đăng bởi {post.staff.name} ({post.staff.userName}) vào ngày {new Date(post.date).toLocaleDateString()}
                                 </span>
                             </div>
                         </div>
@@ -70,7 +78,7 @@ const BlogDetail = () => {
                 <div className="container px-4 px-lg-5">
                     <div className="row gx-4 gx-lg-5 justify-content-center">
                         <div className="col-md-10 col-lg-8 col-xl-7">
-                            <p>{post.body}</p>
+                            <p>{post.description}</p>
                         </div>
                     </div>
                 </div>

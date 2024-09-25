@@ -7,6 +7,8 @@ import Home from './page/home';
 import Blog from './page/blog';
 import BlogDetail from './page/blog detail';
 import ForgotPassword from './page/forgot';
+import About from './page/about';
+import Contract from './page/contract';
 
 function App() {
   const router = createBrowserRouter([
@@ -33,6 +35,14 @@ function App() {
     {
       path: '/forgot-password',
       element: <ForgotPassword />
+    },
+    {
+      path: 'about',
+      element: <About />
+    },
+    {
+      path: 'lien-he',
+      element: <Contract />
     },
   ]);
 

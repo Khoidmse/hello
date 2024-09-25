@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import styles from './login.module.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../config/axios'
 
 export const LoginForm = () => {
-    const [username, setUsername] = useState('');
+    const [userName, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(''); // Thêm state cho thông báo lỗi
 
@@ -24,16 +24,20 @@ export const LoginForm = () => {
     const handleLogin = async (e) => {
         e.preventDefault(); // Ngăn chặn reload trang khi submit form
 
-        const loginValues = { username, password };
+        const loginValues = { userName, password };
 
         try {
-            const response = await axios.post('https://dummyjson.com/auth/login', loginValues);
-            console.log('Đăng nhập thành công:', response.data);
-
-            localStorage.setItem('token', response.data.token);
-            navigate('/');
+            // Gửi request đăng nhập bằng api đã cấu hình
+            const response = await api.post(`/user/login/${userName}/${password}`, loginValues);
+            // Kiểm tra response và điều hướng
+            if (response.status === 200 && response.data === 'Login successfully') {
+                localStorage.setItem('token', response.data.token);
+                navigate('/');
+            } else {
+                setErrorMessage("Tài khoản hoặc mật khẩu sai");
+            }
         } catch (error) {
-            setErrorMessage("Tài khoản hoặc mật khẩu sai"); // Cập nhật thông báo lỗi
+            throw error;
         }
     };
 
@@ -49,7 +53,7 @@ export const LoginForm = () => {
                             name='username'
                             type='text'
                             placeholder='Tên đăng nhập'
-                            value={username}
+                            value={userName}
                             onChange={(e) => setUsername(e.target.value)}
                             required
                         />
@@ -66,7 +70,7 @@ export const LoginForm = () => {
                     </div>
                     <div className={styles['remmember-forgot']}>
                         <label><input type='checkbox' />Lưu tài khoản</label>
-                        <a href="#" onClick={() => navigate('/forgot-password')}>Quên mật khẩu</a>
+                        <a href="" onClick={() => navigate('/forgot-password')}>Quên mật khẩu</a>
                     </div>
                     <div className={styles.buttonGroup}>
                         <button type="button" style={{ backgroundColor: 'gray' }} onClick={() => navigate('/')}>Quay lại</button>
